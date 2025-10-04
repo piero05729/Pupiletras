@@ -343,8 +343,7 @@ function onConfigChange() {
 sizeEl.addEventListener('change', onConfigChange);
 countEl.addEventListener('change', onConfigChange);
 
-// Inicial
-buildPuzzle();
+// Inicial: no construir aquí; el host construirá al abrir la sala
 
 // ==========================
 // Realtime (PeerJS) Logic
@@ -501,13 +500,8 @@ btnNew.addEventListener('click', () => {
 // Auto-join same link logic
 // ==========================
 function deriveRoomIdFromUrl() {
-  try {
-    const base = (location.host + location.pathname).toLowerCase();
-    const cleaned = base.replace(/[^a-z0-9]/g, '');
-    return ('pupiletras_' + cleaned).slice(0, 48) || 'pupiletras_default';
-  } catch {
-    return 'pupiletras_default';
-  }
+  // Sala fija por código
+  return 'pupiletras_maylove';
 }
 
 function ensureUsername() {
@@ -560,7 +554,12 @@ function autoConnectSameLink() {
       });
       peer.on('error', e2 => setRoomStatus('Error PeerJS: ' + e2, false));
     } else {
-      setRoomStatus('Error PeerJS: ' + msg, false);
+      setRoomStatus('Error PeerJS: ' + msg + ' (modo local)', false);
+      // Fallback: modo local
+      isRealtime = false;
+      isHost = false;
+      try { peer && peer.destroy && peer.destroy(); } catch {}
+      buildPuzzle();
     }
   });
 }
