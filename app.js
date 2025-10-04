@@ -67,6 +67,29 @@
     }
   };
 
+  // Persistencia de progreso por semilla y tamaño
+  function storageKey(){
+    return `pupiletra:${state.seed}:${state.size}`;
+  }
+  function saveProgress(){
+    try{
+      const payload = {
+        found: Array.from(state.foundSet),
+        ts: Date.now()
+      };
+      localStorage.setItem(storageKey(), JSON.stringify(payload));
+    }catch{ /* ignore */ }
+  }
+  function loadProgress(){
+    try{
+      const raw = localStorage.getItem(storageKey());
+      if (!raw) return [];
+      const data = JSON.parse(raw);
+      if (data && Array.isArray(data.found)) return data.found;
+    }catch{ /* ignore */ }
+    return [];
+  }
+
   // Direcciones (8)
   const DIRS = [
     {dr: 0, dc: 1}, {dr: 0, dc: -1}, {dr: 1, dc: 0}, {dr: -1, dc: 0},
@@ -223,6 +246,8 @@
     if (li) li.classList.add('found');
 
     foundCountEl.textContent = String(state.foundSet.size);
+    // guardar progreso
+    saveProgress();
   }
 
   function clearSelectionVisual(){
@@ -320,6 +345,12 @@
       generate();
       render();
       updateURL();
+      // restaurar progreso previo (si existe) para esta combinación de semilla/tamaño
+      const saved = loadProgress();
+      for (const w of saved){
+        // solo marcar si la palabra pertenece al tablero actual
+        if (state.words.some(x => x.norm === w)) markFound(w);
+      }
     });
 
     shareBtn.addEventListener('click', async () => {
@@ -342,6 +373,11 @@
     generate();
     render();
     attachEvents();
+    // aplicar progreso guardado (misma semilla y tamaño)
+    const saved = loadProgress();
+    for (const w of saved){
+      if (state.words.some(x => x.norm === w)) markFound(w);
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);
