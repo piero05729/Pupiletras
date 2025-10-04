@@ -460,9 +460,9 @@ function createRoom() {
 
 function joinRoom() {
   currentUser = (usernameEl.value || '').trim() || 'Jugador';
-  const roomId = (roomIdEl.value || '').trim();
-  if (!roomId) { setRoomStatus('Ingresa un ID de sala', false); return; }
-  isRealtime = true; isHost = false; hostPeerId = roomId;
+  const roomId = hostPeerId; // ya definido por auto-connect
+  if (!roomId) { setRoomStatus('No hay sala', false); return; }
+  isRealtime = true; isHost = false;
   peer = new Peer(undefined, { debug: 2 });
   peer.on('open', () => {
     hostConn = peer.connect(hostPeerId);
@@ -496,3 +496,74 @@ btnNew.addEventListener('click', () => {
     buildPuzzle();
   }
 });
+
+// ==========================
+// Auto-join same link logic
+// ==========================
+function deriveRoomIdFromUrl() {
+  try {
+    const base = (location.host + location.pathname).toLowerCase();
+    const cleaned = base.replace(/[^a-z0-9]/g, '');
+    return ('pupiletras_' + cleaned).slice(0, 48) || 'pupiletras_default';
+  } catch {
+    return 'pupiletras_default';
+  }
+}
+
+function ensureUsername() {
+  let name = (usernameEl && usernameEl.value || '').trim();
+  if (!name) {
+    name = 'Jugador-' + Math.floor(Math.random()*1000).toString().padStart(3,'0');
+    if (usernameEl) usernameEl.value = name;
+  }
+  currentUser = name;
+}
+
+function autoConnectSameLink() {
+  hostPeerId = deriveRoomIdFromUrl();
+  ensureUsername();
+  // Intentar ser host con ID fijo; si el ID está tomado, ser cliente
+  isRealtime = true;
+  isHost = true;
+  peer = new Peer(hostPeerId, { debug: 2 });
+  let opened = false;
+  peer.on('open', () => {
+    opened = true;
+    setRoomStatus(`Sala (host): ${hostPeerId}`);
+    buildPuzzle();
+    peer.on('connection', handleHostConnection);
+  });
+  peer.on('error', (err) => {
+    const msg = String(err && err.type || err);
+    if (!opened && (err.type === 'unavailable-id' || /unavailable/i.test(msg))) {
+      // ID ya en uso: convertirse en cliente
+      try { peer.destroy(); } catch {}
+      isHost = false;
+      // Crear peer sin ID y conectar al host existente
+      peer = new Peer(undefined, { debug: 2 });
+      peer.on('open', () => {
+        setRoomStatus(`Conectado a: ${hostPeerId}`);
+        hostConn = peer.connect(hostPeerId);
+        hostConn.on('open', () => {
+          hostConn.send({ type: 'hello', name: currentUser });
+        });
+        hostConn.on('data', (msg) => {
+          if (!msg || typeof msg !== 'object') return;
+          if (msg.type === 'init_state') applyRoomState(msg.state);
+          if (msg.type === 'found') applyFound(msg.word, msg.by);
+          if (msg.type === 'new_puzzle' && msg.state) {
+            applyRoomState(msg.state);
+            pushEvent(`${msg.by || 'Alguien'} generó una nueva sopa`);
+          }
+        });
+        hostConn.on('close', () => setRoomStatus('Desconectado del host', false));
+      });
+      peer.on('error', e2 => setRoomStatus('Error PeerJS: ' + e2, false));
+    } else {
+      setRoomStatus('Error PeerJS: ' + msg, false);
+    }
+  });
+}
+
+// Arrancar conexión automática
+autoConnectSameLink();
