@@ -1,71 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pupiletras Adventista</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <title>Pupiletra Bíblica (Adventista)</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="app-header">
-    <h1>Pupiletras Adventista</h1>
-    <p class="subtitle">Encuentra los nombres y se tacharán en rojo al descubrirlos.</p>
+  <header class="topbar">
+    <h1>Pupiletra de Nombres Bíblicos</h1>
+    <div class="controls">
+      <label>
+        Tamaño
+        <input id="sizeInput" type="number" min="8" max="24" value="14" />
+      </label>
+      <label>
+        Semilla
+        <input id="seedInput" type="text" placeholder="p.ej. amigos2025" />
+      </label>
+      <button id="newBtn">Nueva sopa</button>
+      <button id="shareBtn">Copiar enlace</button>
+    </div>
   </header>
 
-  <main class="app-main">
-    <section class="realtime-controls">
-      <div class="control-group">
-        <label for="username">Tu nombre</label>
-        <input id="username" type="text" placeholder="Escribe tu nombre" />
+  <main class="layout">
+    <section class="grid-section">
+      <div id="grid" class="grid" aria-label="Cuadrícula de sopa de letras"></div>
+    </section>
+    <aside class="sidebar">
+      <h2>Palabras</h2>
+      <ul id="wordList" class="word-list"></ul>
+      <div class="status">
+        <span id="foundCount">0</span>/<span id="totalCount">0</span> encontradas
       </div>
-      <span id="roomStatus" class="room-status" aria-live="polite"></span>
-    </section>
-
-    <section class="controls">
-      <div class="control-group">
-        <label for="gridSize">Tamaño</label>
-        <select id="gridSize">
-          <option value="10">10 x 10</option>
-          <option value="12" selected>12 x 12</option>
-          <option value="14">14 x 14</option>
-          <option value="16">16 x 16</option>
-        </select>
-      </div>
-      <div class="control-group">
-        <label for="wordCount">Palabras</label>
-        <select id="wordCount">
-          <option value="8">8</option>
-          <option value="10" selected>10</option>
-          <option value="12">12</option>
-          <option value="15">15</option>
-        </select>
-      </div>
-      <button id="btnNew" class="primary">Nueva sopa</button>
-    </section>
-
-    <section class="board-and-list">
-      <div id="board" class="board" aria-label="Tablero de sopa de letras" role="grid"></div>
-      <aside class="wordlist">
-        <h2>Nombres a encontrar</h2>
-        <ul id="words" class="words" aria-live="polite"></ul>
-      </aside>
-    </section>
-
-    <section class="events-panel">
-      <h2>Eventos</h2>
-      <ul id="events" class="events" aria-live="polite"></ul>
-    </section>
+      <details class="help">
+        <summary>¿Cómo jugar?</summary>
+        <p>
+          Pulsa en una letra para iniciar y arrastra en línea recta hasta la última letra.
+          Suelta para validar. Se aceptan 8 direcciones. El mismo enlace (semilla)
+          genera el mismo tablero para todos.
+        </p>
+      </details>
+      <details>
+        <summary>Compartir</summary>
+        <p>
+          Usa el botón "Copiar enlace" o comparte la URL con los parámetros ?seed=...&size=...
+        </p>
+        <input id="shareLink" class="share-link" type="text" readonly />
+      </details>
+    </aside>
   </main>
 
-  <footer class="app-footer">
-    <small>Arrastra para seleccionar. Coinciden palabras en cualquier dirección (y al revés).</small>
+  <footer class="footer">
+    <small>Hecho para jugar con amigos. Misma semilla, misma sopa.</small>
   </footer>
 
-  <!-- PeerJS para conexiones P2P sin backend propio -->
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-  <script src="./main.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
