@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pupiletras Adventista</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>Pupiletras Adventista</h1>
+    <p class="subtitle">Encuentra los nombres y se tacharán en rojo al descubrirlos.</p>
+  </header>
+
+  <main class="app-main">
+    <section class="realtime-controls">
+      <div class="control-group">
+        <label for="username">Tu nombre</label>
+        <input id="username" type="text" placeholder="Escribe tu nombre" />
+      </div>
+      <div class="control-group">
+        <label for="roomId">Sala</label>
+        <input id="roomId" type="text" placeholder="Ej: clase-jovenes" />
+      </div>
+      <button id="btnCreateRoom" class="secondary">Crear sala</button>
+      <button id="btnJoinRoom" class="secondary">Unirse</button>
+      <span id="roomStatus" class="room-status" aria-live="polite"></span>
+    </section>
+
+    <section class="controls">
+      <div class="control-group">
+        <label for="gridSize">Tamaño</label>
+        <select id="gridSize">
+          <option value="10">10 x 10</option>
+          <option value="12" selected>12 x 12</option>
+          <option value="14">14 x 14</option>
+          <option value="16">16 x 16</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="wordCount">Palabras</label>
+        <select id="wordCount">
+          <option value="8">8</option>
+          <option value="10" selected>10</option>
+          <option value="12">12</option>
+          <option value="15">15</option>
+        </select>
+      </div>
+      <button id="btnNew" class="primary">Nueva sopa</button>
+    </section>
+
+    <section class="board-and-list">
+      <div id="board" class="board" aria-label="Tablero de sopa de letras" role="grid"></div>
+      <aside class="wordlist">
+        <h2>Nombres a encontrar</h2>
+        <ul id="words" class="words" aria-live="polite"></ul>
+      </aside>
+    </section>
+
+    <section class="events-panel">
+      <h2>Eventos</h2>
+      <ul id="events" class="events" aria-live="polite"></ul>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>Arrastra para seleccionar. Coinciden palabras en cualquier dirección (y al revés).</small>
+  </footer>
+
+  <!-- PeerJS para conexiones P2P sin backend propio -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>
